@@ -6,39 +6,37 @@ pipeline {
     }
 
     environment {
-        REPO_URL = "https://github.com/saleenakanaka/mavenRepo.git"
-        BRANCH = "master"
-        APP_NAME = "app"
+        REPO_URL   = "https://github.com/saleenakanaka/mavenRepo.git"
+        BRANCH     = "master"
+        APP_NAME   = "app"
+        DEPLOY_HOST = "localhost"
+        DEPLOY_USER = "deploy"
+        DEPLOY_PATH = "/Users/stephenraj/Downloads/learnings/deploy"
     }
 
     stages {
 
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
                 git branch: "${BRANCH}", url: "${REPO_URL}"
             }
         }
 
-        stage('Build with Maven') {
+        stage('Build') {
             steps {
-                sh 'echo "Printing Maven version"'
-                sh 'mvn -version'
                 sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Package JAR as TAR') {
+        stage('Package') {
             steps {
-                script {
-                    // Find generated jar (adjust if needed)
-                    sh '''
-                        JAR_FILE=$(ls target/*.jar | head -n 1)
-                        mkdir -p release
-                        cp $JAR_FILE release/
-                        cd release
-                        tar -cvf ${APP_NAME}.tar *.jar
-                    '''
-                }
+                sh '''
+                    JAR_FILE=$(ls target/*.jar | head -n 1)
+                    mkdir -p release
+                    cp $JAR_FILE release/
+                    cd release
+                    tar -cvf ${APP_NAME}.tar *.jar
+                '''
             }
         }
 
@@ -46,6 +44,42 @@ pipeline {
             steps {
                 archiveArtifacts artifacts: 'release/*.tar', fingerprint: true
             }
+        }
+
+        stage('Deploy to Server') {
+            steps {
+                
+                    sh """
+                        cp release/${APP_NAME}.tar ${DEPLOY_PATH}/
+                        #ssh ${DEPLOY_USER}@${DEPLOY_HOST} '
+                            cd ${DEPLOY_PATH} &&
+                            tar -xvf ${APP_NAME}.tar &&
+                            #systemctl restart ${APP_NAME}
+                        
+                    """
+                
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sshagent(['ssh-credentials-id']) {
+                    sh """
+                        echo "App deployed"
+                        
+                        
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployment successful!"
+        }
+        failure {
+            echo "Deployment failed!"
         }
     }
 }
