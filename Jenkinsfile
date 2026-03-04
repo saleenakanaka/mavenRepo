@@ -51,10 +51,8 @@ pipeline {
                 
                     sh """
                         cp release/${APP_NAME}.tar ${DEPLOY_PATH}/
-                        #ssh ${DEPLOY_USER}@${DEPLOY_HOST} 
                             cd ${DEPLOY_PATH} &&
-                            tar -xvf ${APP_NAME}.tar &&
-                            #systemctl restart ${APP_NAME}
+                            tar -xvf ${APP_NAME}.tar 
                         
                     """
                 
