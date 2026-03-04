@@ -61,13 +61,13 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                sshagent(['ssh-credentials-id']) {
+            
                     sh """
                         echo "App deployed"
                         
                         
                     """
-                }
+                
             }
         }
     }
