@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         REPO_URL   = "https://github.com/saleenakanaka/mavenRepo.git"
-        BRANCH     = "master"
+        BRANCH     = "stage"
         APP_NAME   = "app"
         DEPLOY_HOST = "localhost"
         DEPLOY_USER = "deploy"
